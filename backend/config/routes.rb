@@ -20,6 +20,9 @@ Rails.application.routes.draw do
 
       # reset_password
       post 'reset_password', to: 'users#reset_password'
+
+      # google-login
+      post 'google_login', to: 'users#google_login'
     end
   end
 end

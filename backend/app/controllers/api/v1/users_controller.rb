@@ -340,7 +340,7 @@ class Api::V1::UsersController < ApplicationController
           UserMailer.forgot_password_email(user, token).deliver_now
           render json: { message: "Updated token and token time on backend!", token: token}, status: :ok
         else
-          render json: { error: "User not found!"}, status: :not_found
+          render json: { errors: { email: "User not found!"}}, status: :not_found
           return
         end
       rescue => e
@@ -428,6 +428,46 @@ class Api::V1::UsersController < ApplicationController
       end
       
     end
+
+    # google_login
+    require 'httparty'
+
+    def google_login
+      token = params[:token]
+
+      begin
+        user_info = HTTParty.get(
+          "https://www.googleapis.com/oauth2/v3/userinfo",
+          headers: { "Authorization" => "Bearer #{token}" }
+        )
+
+        if user_info.code == 200
+          email = user_info['email']
+          name  = user_info['name']
+
+          user = User.find_or_create_by(email: email) do |u|
+            u.name = name
+            u.password = SecureRandom.hex(10)
+            u.flag = "User"   # make sure you set flag, otherwise token creation may fail
+          end
+
+          access_token  = JsonWebToken.new.encode_token(user.id, user.flag, 30.minutes.from_now)
+          refresh_token = JsonWebToken.new.encode_token(user.id, user.flag, 24.hours.from_now)
+
+          render json: {
+            message: "Google Login Successful!",
+            access_token: access_token,
+            refresh_token: refresh_token,
+            user: user
+          }, status: :ok
+        else
+          render json: { error: "Invalid Google token" }, status: :unauthorized
+        end
+      rescue => e
+        render json: { error: "Something went wrong!", message: e.message }, status: :unauthorized
+      end
+    end
+
 
   # privately hold user_params
   private

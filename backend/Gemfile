@@ -12,6 +12,9 @@ gem 'dotenv-rails'
 # httparty
 gem 'httparty'
 
+# google-id-token
+gem 'google-id-token'
+
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 8.0.3"
 # Use postgresql as the database for Active Record
