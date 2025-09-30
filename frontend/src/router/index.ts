@@ -4,6 +4,7 @@ import LoginForm from '@/forms/LoginForm.vue'
 import ForgotPasswordForm from '@/forms/ForgotPasswordForm.vue'
 import ResetPasswordForm from '@/forms/ResetPasswordForm.vue'
 import AdminDashboard from '@/pages/AdminDashboard.vue'
+import isTokenExpired from '@/services/auth'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -17,13 +18,15 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('access_token');
+  const isAuth = isTokenExpired(token)
   const publicRoutes = ['/', '/login']
 
   if (publicRoutes.includes(to.path)) {
     return next();
   }
-  
+
   next();
-});
+})
 
 export default router

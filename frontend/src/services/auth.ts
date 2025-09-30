@@ -3,6 +3,7 @@ function isTokenExpired(token: string | null): boolean {
 
     const payload = JSON.parse(atob(token.split('.')[1]));
     const exp = payload['exp']
+    const flag = payload['flag']
     const now = Date.now() / 1000
 
     const isExpired = exp < now
